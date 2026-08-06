@@ -6,7 +6,6 @@ const ASSETS = [
   './icon.svg'
 ];
 
-// 1. インストール時にリソースをキャッシュ
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
@@ -14,7 +13,6 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// 2. アクティベート時に古いキャッシュを削除
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -29,12 +27,11 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// 3. リクエストの制御（共有POSTと通常GETの分岐）
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Androidからの共有（POSTリクエスト）処理
-  if (url.pathname.endsWith('/share') && event.request.method === 'POST') {
+  // 1. Android共有（POSTリクエスト）の受取
+  if (url.pathname.endsWith('share') && event.request.method === 'POST') {
     event.respondWith(
       (async () => {
         const formData = await event.request.formData();
@@ -50,30 +47,17 @@ self.addEventListener('fetch', (event) => {
           })));
         }
 
-        const redirectUrl = new URL('./?shared=true', event.request.url);
-        return Response.redirect(redirectUrl.href, 303);
+        return Response.redirect('./index.html?shared=true', 303);
       })()
     );
     return;
   }
 
-  // 通常のGETリクエスト（キャッシュ優先＋フォールバック）
+  // 2. 通常のGETリクエスト（キャッシュ優先）
   if (event.request.method === 'GET') {
     event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-        return fetch(event.request).then((response) => {
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-          return response;
-        });
+      caches.match(event.request).then((response) => {
+        return response || fetch(event.request);
       })
     );
   }
