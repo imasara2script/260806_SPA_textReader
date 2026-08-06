@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0052D4" />
+      <stop offset="50%" stop-color="#4364F7" />
+      <stop offset="100%" stop-color="#6FB1FC" />
+    </linearGradient>
+  </defs>
+
+  <!-- アプリ背景（セーフゾーン考慮の角丸） -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+
+  <!-- ドキュメント本体 -->
+  <path d="M160 112h128l80 80v208c0 17.7-14.3 32-32 32H160c-17.7 0-32-14.3-32-32V144c0-17.7 14.3-32 32-32z" fill="#FFFFFF" />
+
+  <!-- 折り返し角 -->
+  <path d="M288 112l80 80h-80V112z" fill="#CBD5E1" />
+
+  <!-- ログテキスト行表現 -->
+  <rect x="168" y="232" width="136" height="16" rx="8" fill="#2563EB" />
+  <rect x="168" y="272" width="176" height="16" rx="8" fill="#64748B" />
+  <rect x="168" y="312" width="152" height="16" rx="8" fill="#64748B" />
+  <rect x="168" y="352" width="104" height="16" rx="8" fill="#64748B" />
+</svg>
