@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログファイルビューアー</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background-color: #f5f5f5;
+    }
+    header {
+      margin-bottom: 16px;
+    }
+    .file-input-area {
+      margin-bottom: 16px;
+    }
+    .info-card {
+      background: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    pre {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 14px;
+      max-height: 70vh;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h2>ログファイルビューアー</h2>
+  </header>
+
+  <div class="file-input-area">
+    <input type="file" id="filePicker" accept=".txt,.log,text/plain">
+  </div>
+
+  <div id="fileInfo" class="info-card" style="display: none;">
+    <strong>ファイル名:</strong> <span id="fileName">-</span>
+  </div>
+
+  <pre id="logOutput">ファイルを選択するか、Androidの「共有」から開いてください。</pre>
+
+  <script>
+    // Service Worker の登録
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+
+    // 共有されたデータの表示チェック
+    async function checkSharedData() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('shared') === 'true') {
+        try {
+          const cache = await caches.open('shared-files');
+          const response = await cache.match('/shared-data.json');
+          if (response) {
+            const data = await response.json();
+            displayContent(data.name, data.content);
+            // 表示後にキャッシュをクリア
+            await cache.delete('/shared-data.json');
+          }
+        } catch (e) {
+          console.error("共有データの読み込みに失敗しました", e);
+        }
+      }
+    }
+
+    // ファイル内容を画面に表示する関数
+    function displayContent(name, text) {
+      document.getElementById('fileName').textContent = name;
+      document.getElementById('fileInfo').style.display = 'block';
+      document.getElementById('logOutput').textContent = text;
+    }
+
+    // 手動ファイル選択のイベント
+    document.getElementById('filePicker').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        displayContent(file.name, evt.target.result);
+      };
+      reader.readAsText(file);
+    });
+
+    // 起動時に共有データがあるか確認
+    window.addEventListener('DOMContentLoaded', checkSharedData);
+  </script>
+</body>
+</html>
