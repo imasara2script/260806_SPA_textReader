@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ログファイルビューアー</title>
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -57,7 +58,11 @@
   <script>
     // Service Worker の登録
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('SW registered:', reg))
+          .catch((err) => console.error('SW registration failed:', err));
+      });
     }
 
     // 共有されたデータの表示チェック
@@ -66,7 +71,6 @@
       if (urlParams.get('shared') === 'true') {
         try {
           const cache = await caches.open('shared-files');
-          // Relative match
           const response = await cache.match('shared-data.json');
           if (response) {
             const data = await response.json();
@@ -79,14 +83,14 @@
       }
     }
 
-    // ファイル内容を画面に表示する関数
+    // ファイル内容を表示
     function displayContent(name, text) {
       document.getElementById('fileName').textContent = name;
       document.getElementById('fileInfo').style.display = 'block';
       document.getElementById('logOutput').textContent = text;
     }
 
-    // 手動ファイル選択のイベント
+    // 手動ファイル選択
     document.getElementById('filePicker').addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -98,7 +102,6 @@
       reader.readAsText(file);
     });
 
-    // 起動時に共有データがあるか確認
     window.addEventListener('DOMContentLoaded', checkSharedData);
   </script>
 </body>
