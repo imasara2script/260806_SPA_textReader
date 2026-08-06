@@ -70,12 +70,11 @@
   <pre id="logOutput">ファイルを選択するか、Androidの「共有」から開いてください。</pre>
 
   <script>
-    // 1. Service Worker 登録
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
           .then((reg) => {
-            document.getElementById('swStatus').textContent = 'SW状態: 登録成功 (' + reg.scope + ')';
+            document.getElementById('swStatus').textContent = 'SW状態: 登録成功';
           })
           .catch((err) => {
             document.getElementById('swStatus').textContent = 'SW状態: 登録失敗 (' + err + ')';
@@ -83,14 +82,12 @@
       });
     }
 
-    // 2. ChromeのPWA判定（インストール可能判定）イベントの監視
     window.addEventListener('beforeinstallprompt', (e) => {
       document.getElementById('pwaStatus').textContent = 'PWA判定: インストール可能です！';
       document.getElementById('pwaStatus').style.color = 'green';
       document.getElementById('pwaStatus').style.fontWeight = 'bold';
     });
 
-    // 3. 共有データの受取処理
     async function checkSharedData() {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('shared') === 'true') {

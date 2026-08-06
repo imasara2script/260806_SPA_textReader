@@ -1,9 +1,7 @@
 {
-  "id": "./",
   "name": "ログファイルビューアー",
   "short_name": "LogViewer",
   "start_url": "./index.html",
-  "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0052D4",
