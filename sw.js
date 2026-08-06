@@ -9,8 +9,8 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // 共有アクション(/share)を受け取った場合
-  if (url.pathname === '/share' && event.request.method === 'POST') {
+  // パスの末尾が /share かどうか判断
+  if (url.pathname.endsWith('/share') && event.request.method === 'POST') {
     event.respondWith(
       (async () => {
         const formData = await event.request.formData();
@@ -18,17 +18,17 @@ self.addEventListener('fetch', (event) => {
 
         if (file) {
           const text = await file.text();
-          // 受け取ったファイルデータを一時的なキャッシュに保存
           const cache = await caches.open('shared-files');
-          await cache.put('/shared-data.json', new Response(JSON.stringify({
+          await cache.put('shared-data.json', new Response(JSON.stringify({
             name: file.name,
             content: text,
             type: file.type
           })));
         }
 
-        // メイン画面へリダイレクト
-        return Response.redirect('/index.html?shared=true', 303);
+        // リポジトリ名を維持した相対リダイレクトを行うため、元のURLの起点を使う
+        const redirectUrl = new URL('./index.html?shared=true', event.request.url);
+        return Response.redirect(redirectUrl.href, 303);
       })()
     );
   }

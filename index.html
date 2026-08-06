@@ -66,12 +66,12 @@
       if (urlParams.get('shared') === 'true') {
         try {
           const cache = await caches.open('shared-files');
-          const response = await cache.match('/shared-data.json');
+          // Relative match
+          const response = await cache.match('shared-data.json');
           if (response) {
             const data = await response.json();
             displayContent(data.name, data.content);
-            // 表示後にキャッシュをクリア
-            await cache.delete('/shared-data.json');
+            await cache.delete('shared-data.json');
           }
         } catch (e) {
           console.error("共有データの読み込みに失敗しました", e);
