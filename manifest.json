@@ -1,7 +1,9 @@
 {
+  "id": "./",
   "name": "ログファイルビューアー",
   "short_name": "LogViewer",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0052D4",
@@ -10,7 +12,13 @@
       "src": "icon.svg",
       "sizes": "192x192 512x512 any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "192x192 512x512 any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ],
   "share_target": {
@@ -21,7 +29,7 @@
       "files": [
         {
           "name": "log_file",
-          "accept": ["text/plain", "text/*", ".txt", ".log", "*/*"]
+          "accept": ["text/plain", ".txt", ".log"]
         }
       ]
     }

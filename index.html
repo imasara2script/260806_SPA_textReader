@@ -43,6 +43,7 @@
 
   <header>
     <h2>ログファイルビューアー</h2>
+    <p id="swStatus" style="font-size: 12px; color: #666;"></p>
   </header>
 
   <div class="file-input-area">
@@ -56,53 +57,56 @@
   <pre id="logOutput">ファイルを選択するか、Androidの「共有」から開いてください。</pre>
 
   <script>
-    // Service Worker の登録
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then((reg) => console.log('SW registered:', reg))
-          .catch((err) => console.error('SW registration failed:', err));
-      });
-    }
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then((reg) => {
+          document.getElementById('swStatus').textContent = 'SW登録: 成功 (' + reg.scope + ')';
+        })
+        .catch((err) => {
+          document.getElementById('swStatus').textContent = 'SW登録: 失敗 (' + err + ')';
+        });
+    });
+  } else {
+    document.getElementById('swStatus').textContent = 'SW非対応ブラウザです';
+  }
 
-    // 共有されたデータの表示チェック
-    async function checkSharedData() {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('shared') === 'true') {
-        try {
-          const cache = await caches.open('shared-files');
-          const response = await cache.match('shared-data.json');
-          if (response) {
-            const data = await response.json();
-            displayContent(data.name, data.content);
-            await cache.delete('shared-data.json');
-          }
-        } catch (e) {
-          console.error("共有データの読み込みに失敗しました", e);
+  // 共有されたデータの表示チェック
+  async function checkSharedData() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('shared') === 'true') {
+      try {
+        const cache = await caches.open('shared-files');
+        const response = await cache.match('shared-data.json');
+        if (response) {
+          const data = await response.json();
+          displayContent(data.name, data.content);
+          await cache.delete('shared-data.json');
         }
+      } catch (e) {
+        console.error("共有データの読み込みに失敗しました", e);
       }
     }
+  }
 
-    // ファイル内容を表示
-    function displayContent(name, text) {
-      document.getElementById('fileName').textContent = name;
-      document.getElementById('fileInfo').style.display = 'block';
-      document.getElementById('logOutput').textContent = text;
-    }
+  function displayContent(name, text) {
+    document.getElementById('fileName').textContent = name;
+    document.getElementById('fileInfo').style.display = 'block';
+    document.getElementById('logOutput').textContent = text;
+  }
 
-    // 手動ファイル選択
-    document.getElementById('filePicker').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+  document.getElementById('filePicker').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        displayContent(file.name, evt.target.result);
-      };
-      reader.readAsText(file);
-    });
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      displayContent(file.name, evt.target.result);
+    };
+    reader.readAsText(file);
+  });
 
-    window.addEventListener('DOMContentLoaded', checkSharedData);
-  </script>
+  window.addEventListener('DOMContentLoaded', checkSharedData);
+</script>
 </body>
 </html>
