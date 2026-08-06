@@ -16,7 +16,6 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
-  // 共有（POST）リクエストの受取処理
   if (e.request.method === 'POST' && url.pathname.endsWith('share')) {
     e.respondWith(
       (async () => {
@@ -36,7 +35,6 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // 通常の通信処理
   e.respondWith(
     caches.match(e.request).then((res) => res || fetch(e.request))
   );
